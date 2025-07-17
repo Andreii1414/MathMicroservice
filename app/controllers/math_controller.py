@@ -1,0 +1,160 @@
+from flask import request, jsonify
+from app.schemas.request_schema import (FibonacciRequest, PowerRequest,
+                                        FactorialRequest, ResultResponse)
+from app.services.math_service import MathService
+from app import worker
+from app import db
+from app.models.request import MathRequest
+from pydantic import ValidationError
+from app.utils.cache import cache
+from app.utils.errors import (ValidationAppError,
+                              CalculationAppError, AppError)
+import time
+from app import logger
+
+
+class MathController:
+    """
+    Controller for handling math operations like Fibonacci, Power, and Factorial.
+    It uses asynchronous processing and caching for performance.
+    """
+    @staticmethod
+    @cache.memoize()
+    def _get_cached_fibonacci(n):
+        return worker.run(MathService.calculate_fibonacci, n).result()
+
+    @staticmethod
+    @cache.memoize()
+    def _get_cached_power(base, exponent):
+        return worker.run(MathService.power, base, exponent).result()
+
+    @staticmethod
+    @cache.memoize()
+    def _get_cached_factorial(n):
+        return worker.run(MathService.factorial, n).result()
+
+    def _save_request(self, operation, input_value, result, processing_time):
+        record = MathRequest(
+            operation=operation,
+            input_value=input_value,
+            result=str(result),
+            processing_time=processing_time
+        )
+        db.session.add(record)
+        db.session.commit()
+
+    def _build_response(self, operation, input_value, result, processing_time):
+        return ResultResponse(
+            operation=operation,
+            input_value=input_value,
+            result=str(result),
+            processing_time=processing_time
+        )
+
+    def factorial(self):
+        try:
+            data = FactorialRequest(**request.json)
+            start = time.perf_counter()
+            result = self._get_cached_factorial(data.n)
+            duration = time.perf_counter() - start
+
+            self._save_request("factorial", str(data.n), result, duration)
+            logger.log("info", f"Factorial of {data.n} calculated in {duration:.4f}s")
+
+            response = self._build_response("factorial", str(data.n), result, duration)
+            return jsonify(response.dict()), 200
+
+        except ValidationError as e:
+            logger.log("ERROR", "Validation error",
+                       {"errors": e.errors(), "input": request.json})
+            return ValidationAppError(e.errors).to_response()
+
+        except ValueError as e:
+            logger.log("ERROR", "Calculation error",
+                       {"error": str(e), "input": request.json})
+            return CalculationAppError(str(e)).to_response()
+
+        except Exception as e:
+            logger.log("ERROR", "Internal error",
+                       {"error": str(e), "input": request.json})
+            return AppError(str(e)).to_response()
+
+    def fibonacci(self):
+        try:
+            data = FibonacciRequest(**request.json)
+            start = time.perf_counter()
+            result = self._get_cached_fibonacci(data.n)
+            duration = time.perf_counter() - start
+
+            self._save_request("fibonacci", str(data.n), result, duration)
+            logger.log("info", f"Fibonacci({data.n}) calculated in {duration:.4f}s")
+
+            response = self._build_response("fibonacci", str(data.n), result, duration)
+            return jsonify(response.dict()), 200
+
+        except ValidationError as e:
+            logger.log("ERROR", "Validation error",
+                       {"errors": e.errors(), "input": request.json})
+            return ValidationAppError(e.errors).to_response()
+
+        except ValueError as e:
+            logger.log("ERROR", "Calculation error",
+                       {"error": str(e), "input": request.json})
+            return CalculationAppError(str(e)).to_response()
+
+        except Exception as e:
+            logger.log("ERROR", "Internal error",
+                       {"error": str(e), "input": request.json})
+            return AppError(str(e)).to_response()
+
+    def power(self):
+        try:
+            data = PowerRequest(**request.json)
+            start = time.perf_counter()
+            result = self._get_cached_power(data.base, data.exponent)
+            duration = time.perf_counter() - start
+
+            input_str = f"{data.base}^{data.exponent}"
+            self._save_request("power", input_str, result, duration)
+            logger.log("info", f"Power({input_str}) calculated in {duration:.4f}s")
+
+            response = self._build_response("power", input_str, result, duration)
+            return jsonify(response.dict()), 200
+
+        except ValidationError as e:
+            logger.log("ERROR", "Validation error",
+                       {"errors": e.errors(), "input": request.json})
+            return ValidationAppError(e.errors).to_response()
+
+        except ValueError as e:
+            logger.log("ERROR", "Calculation error",
+                       {"error": str(e), "input": request.json})
+            return CalculationAppError(str(e)).to_response()
+
+        except Exception as e:
+            logger.log("ERROR", "Internal error",
+                       {"error": str(e), "input": request.json})
+            return AppError(str(e)).to_response()
+
+    def get_requests(self):
+        try:
+            op = request.args.get("operation")
+            query = MathRequest.query
+            if op:
+                query = query.filter_by(operation=op)
+            rows = query.all()
+
+            result = [{
+                "id": r.id,
+                "operation": r.operation,
+                "input_value": r.input_value,
+                "result": r.result,
+                "processing_time": r.processing_time,
+                "timestamp": r.timestamp.isoformat() if r.timestamp else None
+            } for r in rows]
+
+            return jsonify(result), 200
+
+        except Exception as e:
+            logger.log("ERROR", "Failed to retrieve requests", {"error": str(e)})
+            return AppError(str(e)).to_response()

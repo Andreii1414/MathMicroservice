@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Math Microservice UI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            max-width: 800px;
+            margin: auto;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 2rem;
+        }
+        input {
+            margin: 0.25rem 0;
+        }
+        .result {
+            font-weight: bold;
+            color: green;
+            margin-top: 1rem;
+        }
+        .error {
+            font-weight: bold;
+            color: red;
+            margin-top: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 6px 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        button {
+            margin-right: 8px;
+        }
+        td.scrollable {
+            max-width: 300px;
+            overflow-x: auto;
+            white-space: nowrap;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Math Microservice Interface</h1>
+
+    <!-- Power -->
+    <h2>Power</h2>
+    <form id="powForm">
+        Base: <input type="number" step="any" id="base"><br>
+        Exponent: <input type="number" step="any" id="exponent"><br>
+        <button type="submit">Compute Power</button>
+    </form>
+    <div id="powResult" class="result"></div>
+
+    <!-- Fibonacci -->
+    <h2>Fibonacci</h2>
+    <form id="fibForm">
+        N: <input type="number" id="fibN"><br>
+        <button type="submit">Compute Fibonacci</button>
+    </form>
+    <div id="fibResult" class="result"></div>
+
+    <!-- Factorial -->
+    <h2>Factorial</h2>
+    <form id="factForm">
+        N: <input type="number" id="factN"><br>
+        <button type="submit">Compute Factorial</button>
+    </form>
+    <div id="factResult" class="result"></div>
+
+    <hr>
+
+    <!-- Request Log -->
+    <h2>View API Requests</h2>
+    <button onclick="fetchRequests()">View All</button>
+    <button onclick="fetchRequests('power')">Power</button>
+    <button onclick="fetchRequests('fibonacci')">Fibonacci</button>
+    <button onclick="fetchRequests('factorial')">Factorial</button>
+
+    <div id="requestsError" class="error"></div>
+
+    <table id="requestsTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Operation</th>
+                <th>Input</th>
+                <th>Result</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="requestsBody"></tbody>
+    </table>
+
+    <!-- JavaScript logic -->
+    <script>
+        function sendJsonPost(url, data, resultDivId) {
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                return res.json();
+            })
+            .then(response => {
+                document.getElementById(resultDivId).innerText = "Result: " + response.result;
+            })
+            .catch(err => {
+                document.getElementById(resultDivId).innerText = "Error: " + err;
+                document.getElementById(resultDivId).classList.add("error");
+            });
+        }
+
+        document.getElementById("powForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const base = parseFloat(document.getElementById("base").value);
+            const exponent = parseFloat(document.getElementById("exponent").value);
+            sendJsonPost("/api/power", { base, exponent }, "powResult");
+        });
+
+        document.getElementById("fibForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const n = parseInt(document.getElementById("fibN").value);
+            sendJsonPost("/api/fibonacci", { n }, "fibResult");
+        });
+
+        document.getElementById("factForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const n = parseInt(document.getElementById("factN").value);
+            sendJsonPost("/api/factorial", { n }, "factResult");
+        });
+
+        function fetchRequests(operation = null) {
+            let url = "/api/requests";
+            if (operation) {
+                url += `?operation=${operation}`;
+            }
+
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) throw new Error("HTTP " + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    const table = document.getElementById("requestsTable");
+                    const body = document.getElementById("requestsBody");
+                    const error = document.getElementById("requestsError");
+
+                    body.innerHTML = "";  // Clear table
+                    error.innerText = "";
+
+                    if (!data || data.length === 0) {
+                        error.innerText = "No requests found.";
+                        table.style.display = "none";
+                        return;
+                    }
+
+                    data.forEach(req => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${req.id}</td>
+                            <td>${req.operation}</td>
+                            <td>${req.input_value}</td>
+                            <td class="scrollable">${req.result}</td>
+                            <td>${req.timestamp}</td>
+                        `;
+
+                        body.appendChild(row);
+                    });
+
+                    table.style.display = "table";
+                })
+                .catch(err => {
+                    document.getElementById("requestsError").innerText = "Error: " + err;
+                });
+        }
+    </script>
+
+</body>
+</html>
