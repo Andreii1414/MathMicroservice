@@ -21,7 +21,7 @@ This project is a microservice built with **Flask**, designed to expose endpoint
 
 ### Download the Docker image
 Download the image archive (`math-service.tar`) from the following link:
-[Download math-service Docker image](<insert-download-link-here>)
+[Download math-service Docker image](https://github.com/Andreii1414/MathMicroservice/releases/download/v1.0.0/math-service.tar)
 
 ### Load the image into Docker
 Once downloaded, load the image into your local Docker environment:
