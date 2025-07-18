@@ -49,11 +49,11 @@ To remove the container, use:
 docker rm -f math-api
 ```
 
-## Testing the API
+### Testing the API
 
 Once the container is running, you can test the API using `curl` or any API client like Postman.
 
-### Example: Compute power
+#### Example: Compute power
 
 ```bash
 curl -X POST http://localhost:5000/api/power \
@@ -113,12 +113,146 @@ Encapsulates the pure mathematical logic. The `math_service.py` file includes st
 ### `app/routes/`
 Defines the HTTP API endpoints using Flask route decorators. Each route delegates the request to a corresponding controller method. Endpoints include:
 
-- `/ping` (health check)
-- `/api/fibonacci`
-- `/api/factorial`
-- `/api/power`
-- `/api/requests` 
-- `/` (serves a simple HTML page with links to available API endpoints) 
+#### `/ping`
+Health check endpoint. Returns a simple `"pong"` response.
+
+<details>
+<summary>Show example</summary>
+
+**Request:**
+
+```bash
+curl http://localhost:5000/ping
+```
+**Response:**
+
+```json
+{
+  "message": "pong"
+}
+```
+</details>
+
+#### `/api/fibonacci`
+Computes the n-th Fibonacci number. Expects a POST request with JSON input.
+<details>
+<summary>Show example</summary>
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/fibonacci \
+  -H "Content-Type: application/json" \
+  -d '{"n": 10}'
+```
+
+**Response:**
+
+```json
+{
+  "operation": "fibonacci",
+  "input_value": "7",
+  "result": "13",
+  "processing_time": 0.0023
+}
+```
+</details>
+
+
+#### `/api/factorial`
+Computes the factorial of n. Expects a POST request with JSON input.
+
+<details>
+<summary>Show example</summary>
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/factorial \
+  -H "Content-Type: application/json" \
+  -d '{"n": 5}'
+```
+
+**Response:**
+
+```json
+{
+  "operation": "factorial",
+  "input_value": "5",
+  "result": "120",
+  "processing_time": 0.0015
+}
+```
+</details>
+
+
+#### `/api/power`
+Computes the power of a base raised to an exponent. Expects a POST request with JSON input.
+
+<details>
+<summary>Show example</summary>
+
+**Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/power \
+  -H "Content-Type: application/json" \
+  -d '{"base": 2, "exponent": 10}'
+```
+
+**Response:**
+
+```json
+{
+  "operation": "power",
+  "input_value": "2^10",
+  "result": "1024.0",
+  "processing_time": 0.0018
+}
+```
+</details>
+
+
+#### `/api/requests` 
+Returns a list of past math requests. Supports optional query param operation.
+
+<details>
+<summary>Show example</summary>
+
+**Request:**
+
+```bash
+curl http://localhost:5000/api/requests?operation=fibonacci
+```
+
+**Response:**
+
+```json
+[
+  {
+    "id": 1,
+    "operation": "fibonacci",
+    "input_value": "7",
+    "result": "13",
+    "timestamp": "2023-10-01T12:00:00Z",
+    "processing_time": 0.0023
+  },
+  {
+    "id": 2,
+    "operation": "fibonacci",
+    "input_value": "10",
+    "result": "55",
+    "timestamp": "2023-10-01T12:01:00Z",
+    "processing_time": 0.0025
+  }
+]
+```
+</details>
+
+
+#### `/`
+Serves a simple HTML page with links to the available API endpoints.
+
 
 ---
 
@@ -130,7 +264,6 @@ Contains the main controller logic for handling requests. Each mathematical oper
 3. Persisted in the database
 4. Logged as a structured event (ZMQLogger + ZMQLogConsumer)
 5. Returned as a formatted response (also validated using a Pydantic schema)
-
 
 ---
 
@@ -151,6 +284,12 @@ The `tests/` directory contains unit tests for all core components:
 - Error handling and utility tests
 
 `conftest.py` includes reusable fixtures and configuration for pytest.
+
+A benchmark test compares AsyncWorker with max_workers=1 and max_workers=5 to evaluate the impact of parallel execution. The test dispatches multiple CPU-intensive tasks and measures total execution time.
+Results indicate that concurrent task execution with a higher worker count leads to significantly better performance on CPU-bound operations.
+
+
+![Worker](/images/test_worker.png)
 
 ### Test Coverage
 
