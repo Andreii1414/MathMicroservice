@@ -17,6 +17,52 @@ This project is a microservice built with **Flask**, designed to expose endpoint
 
 ---
 
+## Running the Service from a Docker Image
+
+### Download the Docker image
+Download the image archive (`math-service.tar`) from the following link:
+[Download math-service Docker image](<insert-download-link-here>)
+
+### Load the image into Docker
+Once downloaded, load the image into your local Docker environment:
+
+```bash
+docker load -i math-service.tar
+```
+
+### Run the Docker container
+Start the service using the following command:
+
+```bash
+docker run -d -p 5000:5000 --name math-api math-service
+```
+
+### Stop or remove the Docker container
+To stop the running container, use:
+
+```bash
+docker stop math-api
+```
+To remove the container, use:
+
+```bash
+docker rm -f math-api
+```
+
+## Testing the API
+
+Once the container is running, you can test the API using `curl` or any API client like Postman.
+
+### Example: Compute power
+
+```bash
+curl -X POST http://localhost:5000/api/power \
+  -H "Content-Type: application/json" \
+  -d '{"base": 2, "exponent": 10}'
+```
+
+---
+
 ## Package Overview
 
 ### `app/`
@@ -45,6 +91,8 @@ Provides supporting utilities:
 
 ### `app/consumers/`
 Implements the ZeroMQ log consumer. It subscribes to the logging address, receives structured log messages, and outputs them for monitoring.
+
+The ZMQ-based logger is used primarily as a demonstration of a distributed logging mechanism. While it currently only prints messages to the console, it would be highly valuable in a production setting where logs originate from multiple services, are stored persistently (e.g., in a file or database), or are visualized through a centralized dashboard for monitoring and analysis.
 
 ---
 
