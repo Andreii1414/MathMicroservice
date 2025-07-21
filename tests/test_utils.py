@@ -1,6 +1,4 @@
 import time
-from asyncio import start_server
-
 from app.utils.cache import cache
 from app import worker
 from flask import Flask
@@ -38,7 +36,7 @@ def test_run_async_future():
 def cpu_heavy_task(x):
     total = 0
     for i in range(10_000_000):
-        total += (i%x)
+        total += (i % x)
     return total
 
 
@@ -53,6 +51,8 @@ def test_async_worker_parallel_vs_serial():
     start_serial = time.perf_counter()
     futures_serial = [worker_serial.run(cpu_heavy_task, i) for i in inputs]
     results_serial = [f.result() for f in futures_serial]
+    assert results_serial == [cpu_heavy_task(i) for i in inputs], \
+        "Serial execution results do not match expected"
     time_serial = time.perf_counter() - start_serial
     worker_serial.shutdown()
 
@@ -61,9 +61,11 @@ def test_async_worker_parallel_vs_serial():
     start_parallel = time.perf_counter()
     futures_parallel = [worker_parallel.run(cpu_heavy_task, i) for i in inputs]
     results_parallel = [f.result() for f in futures_parallel]
+    assert results_parallel == [cpu_heavy_task(i) for i in inputs], \
+        "Parallel execution results do not match expected"
     time_parallel = time.perf_counter() - start_parallel
     worker_parallel.shutdown()
 
-    assert time_parallel < time_serial, "Parallel execution should be faster than serial execution"
+    assert time_parallel < time_serial, \
+        "Parallel execution should be faster than serial execution"
     print(f"Serial: {time_serial:.2f}s | Parallel: {time_parallel:.2f}s")
-
