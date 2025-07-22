@@ -7,7 +7,9 @@ import tempfile
 
 @pytest.fixture(scope='session')
 def app():
-    """Create a Flask application for testing."""
+    """
+    Create a Flask application for testing.
+    """
     db_fd, db_path = tempfile.mkstemp()
     app = create_app()
     app.config.update({
@@ -27,11 +29,15 @@ def app():
 
 @pytest.fixture(scope='session')
 def client(app):
-    """Create a test client for the Flask application."""
+    """
+    Create a test client for the Flask application.
+    """
     return app.test_client()
 
 
 @pytest.fixture(scope='session')
 def db(app):
-    """Create a database session for testing."""
+    """
+    Create a database session for testing.
+    """
     return _db

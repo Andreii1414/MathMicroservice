@@ -2,6 +2,9 @@ from flask import jsonify
 
 
 class AppError(Exception):
+    """
+    Base class for all application errors.
+    """
     status_code = 500
     error_type = "internal"
 
@@ -17,6 +20,9 @@ class AppError(Exception):
 
 
 class ValidationAppError(AppError):
+    """
+    Exception raised for validation errors in the application.
+    """
     status_code = 400
     error_type = "validation"
 
@@ -25,6 +31,9 @@ class ValidationAppError(AppError):
 
 
 class CalculationAppError(AppError):
+    """
+    Exception raised for errors during calculations in the application.
+    """
     status_code = 500
     error_type = "calculation"
 

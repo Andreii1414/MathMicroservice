@@ -34,6 +34,9 @@ class MathController:
         return worker.run(MathService.factorial, n).result()
 
     def _save_request(self, operation, input_value, result, processing_time):
+        """
+        Save the math request to the database.
+        """
         record = MathRequest(
             operation=operation,
             input_value=input_value,
@@ -44,6 +47,9 @@ class MathController:
         db.session.commit()
 
     def _build_response(self, operation, input_value, result, processing_time):
+        """
+        Build a standardized response for the math operations, verified by Pydantic.
+        """
         return ResultResponse(
             operation=operation,
             input_value=input_value,
@@ -52,6 +58,10 @@ class MathController:
         )
 
     def factorial(self):
+        """
+        Handle the factorial operation. Validates input, calculates factorial,
+        caches the result, and returns a standardized response.
+        """
         try:
             data = FactorialRequest(**request.json)
             start = time.perf_counter()
@@ -80,6 +90,10 @@ class MathController:
             return AppError(str(e)).to_response()
 
     def fibonacci(self):
+        """
+        Handle the Fibonacci operation. Validates input, calculates Fibonacci number,
+        caches the result, and returns a standardized response.
+        """
         try:
             data = FibonacciRequest(**request.json)
             start = time.perf_counter()
@@ -108,6 +122,10 @@ class MathController:
             return AppError(str(e)).to_response()
 
     def power(self):
+        """
+        Handle the power operation. Validates input, calculates power,
+        caches the result, and returns a standardized response.
+        """
         try:
             data = PowerRequest(**request.json)
             start = time.perf_counter()

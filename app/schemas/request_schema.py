@@ -24,6 +24,9 @@ class FactorialRequest(BaseModel):
 
 
 class ResultResponse(BaseModel):
+    """
+    Schema for the response containing the result of an operation.
+    """
     operation: str
     input_value: str
     result: str

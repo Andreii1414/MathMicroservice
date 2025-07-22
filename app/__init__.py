@@ -11,6 +11,12 @@ logger = ZMQLogger()
 
 
 def create_app():
+    """
+    Create and configure the Flask application.
+    This function initializes the Flask app, configures it with settings from Config,
+    initializes the database and cache, and registers the API routes.
+    :return: Configured Flask application instance
+    """
     app = Flask(__name__)
     app.config.from_object(Config)
 

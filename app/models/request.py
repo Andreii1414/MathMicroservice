@@ -2,6 +2,9 @@ from app import db
 
 
 class MathRequest(db.Model):
+    """
+    Represents a mathematical operation request in the database.
+    """
     __tablename__ = 'math_requests'
 
     id = db.Column(db.Integer, primary_key=True)

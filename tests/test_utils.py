@@ -6,6 +6,11 @@ from app.utils.worker import AsyncWorker
 
 
 def test_memoize_cache():
+    """
+    Test the memoization cache functionality.
+    This test checks that the cache stores results of function calls
+    and returns cached results for subsequent calls with the same arguments.
+    """
     app = Flask(__name__)
     calls = []
     app.config['CACHE_TYPE'] = 'SimpleCache'
@@ -26,6 +31,11 @@ def test_memoize_cache():
 
 
 def test_run_async_future():
+    """
+    Test the AsyncWorker's run method with a simple function.
+    This test checks that the function can be executed asynchronously
+    and that the result can be retrieved from the future.
+    """
     def dummy(x): return x + 1
 
     future = worker.run(dummy, 5)
@@ -34,6 +44,9 @@ def test_run_async_future():
 
 
 def cpu_heavy_task(x):
+    """
+    A CPU-heavy task that performs a large number of calculations.
+    """
     total = 0
     for i in range(10_000_000):
         total += (i % x)
@@ -43,6 +56,8 @@ def cpu_heavy_task(x):
 def test_async_worker_parallel_vs_serial():
     """
     Test the performance of AsyncWorker with parallel execution vs serial execution.
+    This test checks that running tasks in parallel with multiple workers
+    is faster than running them serially with a single worker.
     """
     inputs = [3, 5, 7, 9, 11]
 

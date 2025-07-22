@@ -4,7 +4,12 @@ from app.database import db
 
 
 def test_create_math_request(app):
-    """Test saving a MathRequest to the database."""
+    """
+    Test creating a new MathRequest and saving it to the database.
+    This test checks if the MathRequest can be created with all required fields
+    and if it is saved correctly in the database.
+    It also verifies that the fields are correctly populated.
+    """
     with app.app_context():
         request = MathRequest(
             operation='factorial',
@@ -24,7 +29,12 @@ def test_create_math_request(app):
 
 
 def test_fetch_saved_request(app):
-    """Test fetching a saved MathRequest from the database."""
+    """
+    Test fetching a saved MathRequest from the database.
+    This test checks if a MathRequest can be retrieved from the database
+    after it has been saved, and verifies that the retrieved data matches
+    the data that was saved.
+    """
     with app.app_context():
         new_request = MathRequest(
             operation='fibonacci',
@@ -43,7 +53,12 @@ def test_fetch_saved_request(app):
 
 
 def test_missing_required_field(app):
-    """Test that a MathRequest without required fields raises an error."""
+    """
+    Test creating a MathRequest without a required field.
+    This test checks if the application correctly raises an error
+    when trying to create a MathRequest without the 'operation' field,
+    which is a required field in the MathRequest model.
+    """
     with app.app_context():
         request = MathRequest(
             input_value='12',
@@ -63,7 +78,12 @@ def test_missing_required_field(app):
 
 
 def test_update_request(app):
-    """Test updating an existing MathRequest."""
+    """
+    Test updating an existing MathRequest.
+    This test checks if an existing MathRequest can be updated
+    with new data, specifically updating the 'result' field.
+    It verifies that the update is correctly saved in the database.
+    """
     with app.app_context():
         request = MathRequest(
             operation='power',
@@ -83,7 +103,11 @@ def test_update_request(app):
 
 
 def test_delete_request(app):
-    """Test deleting a MathRequest."""
+    """
+    Test deleting a MathRequest from the database.
+    This test checks if a MathRequest can be deleted from the database
+    and verifies that it is no longer retrievable after deletion.
+    """
     with app.app_context():
         request = MathRequest(
             operation='factorial',
