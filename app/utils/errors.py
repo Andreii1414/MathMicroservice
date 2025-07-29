@@ -29,13 +29,27 @@ class ValidationAppError(AppError):
     def __init__(self, validation_errors):
         super().__init__(details=str(validation_errors))
 
+    def to_response(self):
+        return jsonify({
+            "status": "error",
+            "type": self.error_type,
+            "details": self.details
+        }), self.status_code
+
 
 class CalculationAppError(AppError):
     """
     Exception raised for errors during calculations in the application.
     """
-    status_code = 500
+    status_code = 400
     error_type = "calculation"
 
     def __init__(self, message="Error during calculation"):
         super().__init__(details=message)
+
+    def to_response(self):
+        return jsonify({
+            "status": "error",
+            "type": self.error_type,
+            "details": self.details
+        }), self.status_code
