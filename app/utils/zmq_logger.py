@@ -18,7 +18,8 @@ class ZMQLogger:
         self.publisher = self.context.socket(zmq.PUB)
         self.publisher.connect(self.address)
 
-    def log(self, level: str, message: str, context: dict = None, operation: str = None):
+    def log(self, level: str, message: str, context: dict = None,
+            operation: str = None):
         """
         Send a structured log message.
         :param level: Log level (e.g., "info", "warning", "error")

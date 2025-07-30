@@ -2,6 +2,7 @@ from app import db
 from sqlalchemy.dialects.postgresql import JSON
 from datetime import datetime
 
+
 class LogEntry(db.Model):
     """
     Represents a log entry in the database.

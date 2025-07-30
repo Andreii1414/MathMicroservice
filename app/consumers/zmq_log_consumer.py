@@ -4,6 +4,7 @@ from app.database import db
 from app.models.log import LogEntry
 from app import create_app
 
+
 class ZMQLogConsumer:
     """
     ZMQ Log Consumer that listens for log messages on a specified ZMQ address.

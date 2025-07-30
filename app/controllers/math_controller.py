@@ -69,14 +69,15 @@ class MathController:
             duration = time.perf_counter() - start
 
             self._save_request("factorial", str(data.n), result, duration)
-            logger.log("info", f"Factorial of {data.n} calculated in {duration:.4f}s", context={"n": data.n}, operation="Factorial")
+            logger.log("info", f"Factorial of {data.n} calculated in {duration:.4f}s",
+                       context={"n": data.n}, operation="Factorial")
 
             response = self._build_response("factorial", str(data.n), result, duration)
             return jsonify(response.dict()), 200
 
         except ValidationError as e:
             logger.log("ERROR", "Validation error",
-                       {"errors": e.errors(), "input": request.json}, operation="Factorial")
+                       {"errors": e.errors(), "input": request.json}, "Factorial")
             return ValidationAppError(e.errors).to_response()
 
         except ValueError as e:
@@ -101,14 +102,15 @@ class MathController:
             duration = time.perf_counter() - start
 
             self._save_request("fibonacci", str(data.n), result, duration)
-            logger.log("info", f"Fibonacci({data.n}) calculated in {duration:.4f}s", context={"n": data.n}, operation="Fibonacci")
+            logger.log("info", f"Fibonacci({data.n}) calculated in {duration:.4f}s",
+                       context={"n": data.n}, operation="Fibonacci")
 
             response = self._build_response("fibonacci", str(data.n), result, duration)
             return jsonify(response.dict()), 200
 
         except ValidationError as e:
             logger.log("ERROR", "Validation error",
-                       {"errors": e.errors(), "input": request.json}, operation="Fibonacci")
+                       {"errors": e.errors(), "input": request.json}, "Fibonacci")
             return ValidationAppError(e.errors).to_response()
 
         except ValueError as e:
@@ -134,7 +136,8 @@ class MathController:
 
             input_str = f"{data.base}^{data.exponent}"
             self._save_request("power", input_str, result, duration)
-            logger.log("info", f"Power({input_str}) calculated in {duration:.4f}s", context={"base": data.base, "exponent": data.exponent}, operation="Power")
+            logger.log("info", f"Power({input_str}) calculated in {duration:.4f}s",
+                       {"base": data.base, "exponent": data.exponent}, "Power")
 
             response = self._build_response("power", input_str, result, duration)
             return jsonify(response.dict()), 200
@@ -174,5 +177,6 @@ class MathController:
             return jsonify(result), 200
 
         except Exception as e:
-            logger.log("ERROR", "Failed to retrieve requests", {"error": str(e)}, operation="GetRequests")
+            logger.log("ERROR", "Failed to retrieve requests",
+                       {"error": str(e)}, operation="GetRequests")
             return AppError(str(e)).to_response()
