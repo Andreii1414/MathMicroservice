@@ -1,10 +1,11 @@
 from flask import request, jsonify
 from app.schemas.request_schema import (FibonacciRequest, PowerRequest,
-                                        FactorialRequest, ResultResponse)
+                                        FactorialRequest, ResultResponse,)
 from app.services.math_service import MathService
 from app import worker
 from app import db
 from app.models.request import MathRequest
+from app.models.log import LogEntry
 from pydantic import ValidationError
 from app.utils.cache import cache
 from app.utils.errors import (ValidationAppError,
@@ -179,4 +180,26 @@ class MathController:
         except Exception as e:
             logger.log("ERROR", "Failed to retrieve requests",
                        {"error": str(e)}, operation="GetRequests")
+            return AppError(str(e)).to_response()
+
+    def get_logs(self):
+        """
+        Retrieve logs from the database.
+        """
+        try:
+            logs = LogEntry.query.all()
+            result = [{
+                "id": log.id,
+                "level": log.level,
+                "message": log.message,
+                "details": log.details,
+                "operation": log.operation,
+                "created_at": log.created_at.isoformat()
+            } for log in logs]
+
+            return jsonify(result), 200
+
+        except Exception as e:
+            logger.log("ERROR", "Failed to retrieve logs",
+                       {"error": str(e)}, operation="GetLogs")
             return AppError(str(e)).to_response()

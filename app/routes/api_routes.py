@@ -52,3 +52,11 @@ def index():
     Render the main UI page.
     """
     return render_template("index.html")
+
+
+@math_bp.route("/api/logs", methods=["GET"])
+def get_logs():
+    """
+    Endpoint to retrieve logs from the database.
+    """
+    return controller.get_logs()
