@@ -1,6 +1,8 @@
 import zmq
 import orjson
-
+from app.database import db
+from app.models.log import LogEntry
+from app import create_app
 
 class ZMQLogConsumer:
     """
@@ -35,9 +37,26 @@ class ZMQLogConsumer:
         """
 
         try:
+
             log = orjson.loads(payload)
-            print(f"[{topic.decode()}] {log['message']} from {log['source']} - "
-                  f"{log.get('context', {})}")
+            level = log.get('level', 'INFO').upper()
+            message = log.get('message', 'No message provided')
+            source = log.get('source', 'Unknown source')
+            context = log.get('context', {})
+            operation = log.get('operation', None)
+            print(f"[{level}] {message} (Source: {source}, Context: {context})")
+
+            with create_app().app_context():
+                log_entry = LogEntry(
+                    level=level,
+                    message=message,
+                    details=context,
+                    operation=operation,
+                )
+
+                db.session.add(log_entry)
+                db.session.commit()
+
         except Exception as e:
             print(f"[ZMQ Consumer Error] Failed to parse message: {e}")
 

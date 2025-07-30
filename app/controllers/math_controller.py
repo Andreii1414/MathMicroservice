@@ -69,24 +69,24 @@ class MathController:
             duration = time.perf_counter() - start
 
             self._save_request("factorial", str(data.n), result, duration)
-            logger.log("info", f"Factorial of {data.n} calculated in {duration:.4f}s")
+            logger.log("info", f"Factorial of {data.n} calculated in {duration:.4f}s", context={"n": data.n}, operation="Factorial")
 
             response = self._build_response("factorial", str(data.n), result, duration)
             return jsonify(response.dict()), 200
 
         except ValidationError as e:
             logger.log("ERROR", "Validation error",
-                       {"errors": e.errors(), "input": request.json})
+                       {"errors": e.errors(), "input": request.json}, operation="Factorial")
             return ValidationAppError(e.errors).to_response()
 
         except ValueError as e:
             logger.log("ERROR", "Calculation error",
-                       {"error": str(e), "input": request.json})
+                       {"error": str(e), "input": request.json}, operation="Factorial")
             return CalculationAppError(str(e)).to_response()
 
         except Exception as e:
             logger.log("ERROR", "Internal error",
-                       {"error": str(e), "input": request.json})
+                       {"error": str(e), "input": request.json}, operation="Factorial")
             return AppError(str(e)).to_response()
 
     def fibonacci(self):
@@ -101,24 +101,24 @@ class MathController:
             duration = time.perf_counter() - start
 
             self._save_request("fibonacci", str(data.n), result, duration)
-            logger.log("info", f"Fibonacci({data.n}) calculated in {duration:.4f}s")
+            logger.log("info", f"Fibonacci({data.n}) calculated in {duration:.4f}s", context={"n": data.n}, operation="Fibonacci")
 
             response = self._build_response("fibonacci", str(data.n), result, duration)
             return jsonify(response.dict()), 200
 
         except ValidationError as e:
             logger.log("ERROR", "Validation error",
-                       {"errors": e.errors(), "input": request.json})
+                       {"errors": e.errors(), "input": request.json}, operation="Fibonacci")
             return ValidationAppError(e.errors).to_response()
 
         except ValueError as e:
             logger.log("ERROR", "Calculation error",
-                       {"error": str(e), "input": request.json})
+                       {"error": str(e), "input": request.json}, operation="Fibonacci")
             return CalculationAppError(str(e)).to_response()
 
         except Exception as e:
             logger.log("ERROR", "Internal error",
-                       {"error": str(e), "input": request.json})
+                       {"error": str(e), "input": request.json}, operation="Fibonacci")
             return AppError(str(e)).to_response()
 
     def power(self):
@@ -134,24 +134,24 @@ class MathController:
 
             input_str = f"{data.base}^{data.exponent}"
             self._save_request("power", input_str, result, duration)
-            logger.log("info", f"Power({input_str}) calculated in {duration:.4f}s")
+            logger.log("info", f"Power({input_str}) calculated in {duration:.4f}s", context={"base": data.base, "exponent": data.exponent}, operation="Power")
 
             response = self._build_response("power", input_str, result, duration)
             return jsonify(response.dict()), 200
 
         except ValidationError as e:
             logger.log("ERROR", "Validation error",
-                       {"errors": e.errors(), "input": request.json})
+                       {"errors": e.errors(), "input": request.json}, operation="Power")
             return ValidationAppError(e.errors).to_response()
 
         except ValueError as e:
             logger.log("ERROR", "Calculation error",
-                       {"error": str(e), "input": request.json})
+                       {"error": str(e), "input": request.json}, operation="Power")
             return CalculationAppError(str(e)).to_response()
 
         except Exception as e:
             logger.log("ERROR", "Internal error",
-                       {"error": str(e), "input": request.json})
+                       {"error": str(e), "input": request.json}, operation="Power")
             return AppError(str(e)).to_response()
 
     def get_requests(self):
@@ -174,5 +174,5 @@ class MathController:
             return jsonify(result), 200
 
         except Exception as e:
-            logger.log("ERROR", "Failed to retrieve requests", {"error": str(e)})
+            logger.log("ERROR", "Failed to retrieve requests", {"error": str(e)}, operation="GetRequests")
             return AppError(str(e)).to_response()
