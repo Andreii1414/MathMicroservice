@@ -92,8 +92,6 @@ Provides supporting utilities:
 ### `app/consumers/`
 Implements the ZeroMQ log consumer. It subscribes to the logging address, receives structured log messages, and outputs them for monitoring.
 
-The ZMQ-based logger is used primarily as a demonstration of a distributed logging mechanism. While it currently only prints messages to the console, it would be highly valuable in a production setting where logs originate from multiple services, are stored persistently (e.g., in a file or database), or are visualized through a centralized dashboard for monitoring and analysis.
-
 ---
 
 ### `app/schemas/`
