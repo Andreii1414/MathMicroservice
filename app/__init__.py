@@ -11,8 +11,7 @@ db = SQLAlchemy()
 worker = AsyncWorker(max_workers=5)
 logger = ZMQLogger()
 limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=["100/hour"]
+    key_func=get_remote_address
 )
 
 

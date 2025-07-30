@@ -1,5 +1,6 @@
 from flask import jsonify, render_template
 from app.controllers import math_controller
+from app import limiter
 
 controller = math_controller.MathController()
 
@@ -13,6 +14,7 @@ def register_routes(app):
         return jsonify({"message": "pong"}), 200
 
     @app.route("/api/fibonacci", methods=["POST"])
+    @limiter.limit("100/hour")
     def fibonacci():
         """
         Endpoint to calculate the Fibonacci number for a given input.
@@ -20,6 +22,7 @@ def register_routes(app):
         return controller.fibonacci()
 
     @app.route("/api/power", methods=["POST"])
+    @limiter.limit("100/hour")
     def power():
         """
         Endpoint to calculate the power of a base raised to an exponent.
@@ -27,6 +30,7 @@ def register_routes(app):
         return controller.power()
 
     @app.route("/api/factorial", methods=["POST"])
+    @limiter.limit("100/hour")
     def factorial():
         """
         Endpoint to calculate the factorial of a given input.
