@@ -4,10 +4,16 @@ from app.utils.cache import cache
 from app.config import Config
 from app.utils.worker import AsyncWorker
 from app.utils.zmq_logger import ZMQLogger
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 db = SQLAlchemy()
 worker = AsyncWorker(max_workers=5)
 logger = ZMQLogger()
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["100/hour"]
+)
 
 
 def create_app():
@@ -22,8 +28,9 @@ def create_app():
 
     db.init_app(app)
     cache.init_app(app)
+    limiter.init_app(app)
 
-    from app.routes.api_routes import math_bp
-    app.register_blueprint(math_bp, url_prefix='/')
+    from app.routes.api_routes import register_routes
+    register_routes(app)
 
     return app
