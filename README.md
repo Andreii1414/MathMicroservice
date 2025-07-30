@@ -76,6 +76,7 @@ This is the core application package, containing all modules for configuration, 
 
 ### `app/models/`
 Defines the SQLAlchemy model used to persist each request. The model includes fields like: operation name, input values, result, timestamp, execution time
+The log.py file defines the SQLAlchemy model for structured logging, including fields for log level, message, context, and source.
 
 ---
 
@@ -247,6 +248,45 @@ curl http://localhost:5000/api/requests?operation=fibonacci
 ```
 </details>
 
+#### `/api/logs` 
+Returns a list of structured log messages. Supports optional query params for filtering by level or source.
+
+<details>
+
+<summary>Show example</summary>
+
+**Request:**
+
+```bash
+curl http://localhost:5000/api/logs?level=info
+```
+
+**Response:**
+
+```json
+[
+  {
+    "id": 1,
+    "level": "info",
+    "message": "Fibonacci computation started",
+    "details": {"n": 7},
+    "source": "x",
+    "operation": "fibonacci",
+    "created_at": "2023-10-01T12:02:00Z"
+  },
+  {
+    "id": 2,
+    "level": "info",
+    "message": "Factorial computation started",
+    "details": {"n": 5},
+    "source": "y",
+    "operation": "factorial",
+    "created_at": "2023-10-01T12:03:00Z"
+  }
+]
+```
+
+</details>
 
 #### `/`
 Serves a simple HTML page with links to the available API endpoints.

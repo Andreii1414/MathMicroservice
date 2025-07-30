@@ -187,7 +187,13 @@ class MathController:
         Retrieve logs from the database.
         """
         try:
-            logs = LogEntry.query.all()
+            level = request.args.get("level")
+            if level:
+                level = level.upper()
+                logs = LogEntry.query.filter_by(level=level).all()
+            else:
+                logs = LogEntry.query.all()
+
             result = [{
                 "id": log.id,
                 "level": log.level,
@@ -198,7 +204,6 @@ class MathController:
             } for log in logs]
 
             return jsonify(result), 200
-
         except Exception as e:
             logger.log("ERROR", "Failed to retrieve logs",
                        {"error": str(e)}, operation="GetLogs")
